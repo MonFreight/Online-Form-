@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CP72 Customs Declaration Form</title>
+    <title>CP72 Customs Declaration Form,</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -41,7 +41,20 @@
         button:hover {
             background-color: #04080d;
         }
-    </style>
+        input[type="checkbox"] {
+        margin-right: 6px;
+        vertical-align: middle;
+        width: auto;
+    }
+
+        #termsLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: normal;
+  margin-top: 10px;
+        }
+</style>
     <script>
         function addRow() {
             const table = document.getElementById("goodsTable");
@@ -76,9 +89,9 @@
   </head>
   <body>
     <script src="script.js"></script>
-    <h2>CP72 Customs Declaration Form</h2>
+    <h2>Mon Freigth - CP72 Customs Declaration Form </h2>
     <form id="cp72Form" onsubmit="submitForm(event)">
-        <label for="sender">Sender Name:</label>
+        <label for="sender">Sender Full Name:</label>
         <input type="text" id="sender" required>
         
         <label for="senderAddress">Sender Address:</label>
@@ -87,7 +100,7 @@
         <label for="senderPhone">Sender Phone Number:</label>
         <input type="text" id="senderPhone" required>
         
-        <label for="recipient">Recipient Name:</label>
+        <label for="recipient">Recipient Full Name:</label>
         <input type="text" id="recipient" required>
         
         <label for="recipientPhone">Recipient Phone Number:</label>
@@ -195,13 +208,13 @@
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
             </script>
-            <label for="terms">
-                <input type="checkbox"id="terms"required>
-                I agree to the <a href="https://www.monfreight.com.au/#kat-1bHvZKezbPW3ePE7" target="_blank">Terms and Conditions</a>
-            </label>
+            <label id="termsLabel" for="terms">
+                <input type="checkbox" id="terms" required>    
+                I agree to the <a href="https://www.monfreight.com.au/#kat-1bHvZKezbPW3ePE7" target="_blank"><strong>Terms and Conditions</strong></label>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+            <script src="NotoSans_Condensed-Regular-normal.js"></script>
             <button id="generatePdfButton">Generate PDF</button>
 
     <script>
@@ -213,9 +226,21 @@
             }
     
             const jsPDF = window.jspdf.jsPDF;
+
     
             function generatePDF() {
-                const doc = new jsPDF();                
+                const termsChecked = document.getElementById("terms")?.checked;
+
+                if(!termsChecked){
+                    alert("Please agree to the Terms and Conditions before generating the PDF.");
+                    return; 
+                }
+            
+                    const doc = new jsPDF(); //
+                    doc.setFont("NotoSansCondensed");
+                    doc.setFontSize(12); 
+
+                                
                 // Fetch form data
                 const sender = document.getElementById("sender")?.value || "No Name Provided";
                 const senderAddress = document.getElementById("senderAddress")?.value || "No Address Provided"
@@ -227,6 +252,7 @@
                 const finalWeight = document.getElementById("finalWeight")?.value || "Not calculated";
                 const value = document.getElementById("value")?.value || "No Declared Value";
                 const comments = document.getElementById("comments")?.value || "No Comments Provided";
+
     
                 // Add title
                 doc.setFontSize(16);
@@ -234,14 +260,14 @@
     
                 // Add Sender & Recipient Details
                 doc.setFontSize(12);
-                doc.text(`Sender Name: ${sender}`, 20, 30);
+                doc.text(`Sender Full Name: ${sender}`, 20, 30);
                 doc.text("Sender Address:", 20, 40);
                 doc.text(doc.splitTextToSize(senderAddress, 170), 20, 45)
-                doc.text(`Sender Phone : ${senderPhonenumber}`, 100, 40);
-                doc.text(`Recipient: ${recipient}`, 20, 55);
+                doc.text(`Sender Phone : ${senderPhonenumber}`, 125, 40);
+                doc.text(`Recipient Full name : ${recipient}`, 20, 55);
                 doc.text("Recipient Address:", 20, 65);
                 doc.text(doc.splitTextToSize(recipientAddress, 170), 20, 70);
-                doc.text(`Recipient Phone : ${recipientPhonenumber}`, 100, 65);
+                doc.text(`Recipient Phone : ${recipientPhonenumber}`, 125, 65);
     
                 // Table headers
                 const headers = [["#", "Description", "Quantity", "Weight (kg)", "Origin", "Value (AUD)"]];
@@ -298,7 +324,16 @@
                 doc.text(`Declared Value: $${value}`, 20, finalY + 20);
                 doc.text("Additional Comments:", 20, finalY + 30);
                 doc.text(doc.splitTextToSize(comments, 170), 20, finalY + 40);
+
+                doc.text(
+                    termsChecked
+                        ? "✔ Terms and Conditions: Agreed"
+                        : "✘ Terms and Conditions: Not agreed",
+                    20,
+                    finalY + 55
+                    );
     
+                
                 // Capture Signature
                 const canvas = document.getElementById("signaturePad");
                 if (canvas) {
@@ -307,7 +342,7 @@
                     const formattedDate = today.toLocaleDateString();
     
                     doc.addImage(imgData, "PNG", 80, finalY + 50, 80, 30);
-                    doc.text(`Sender Name: ${sender}`, 20, finalY + 70);
+                    doc.text(`Sender Full Name: ${sender}`, 20, finalY + 70);
                     doc.text(`Date: ${formattedDate}`, 170, finalY + 70);
                 } else {
                     alert("Signature pad not found!");
